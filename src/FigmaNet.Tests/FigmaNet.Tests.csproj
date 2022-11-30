@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestFiles\FixMaxDepthBug.json" />
     <None Remove="TestFiles\GetFileNodeResult.json" />
     <None Remove="TestFiles\GetImageFillResult.json" />
     <None Remove="TestFiles\GetImageResult.json" />
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="TestFiles\FixMaxDepthBug.json" />
     <EmbeddedResource Include="TestFiles\GetFileNodeResult.json" />
     <EmbeddedResource Include="TestFiles\GetImageFillResult.json" />
     <EmbeddedResource Include="TestFiles\GetImageResult.json" />

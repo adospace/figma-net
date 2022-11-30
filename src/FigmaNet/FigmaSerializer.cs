@@ -10,7 +10,7 @@ public class FigmaSerializer
 
     public FigmaSerializer()
     {
-        var jsonOptions = new JsonSerializerSettings();
+        var jsonOptions = new JsonSerializerSettings { MaxDepth = 128 };
         jsonOptions.Converters.Add(new NodeConverter());
         jsonOptions.Converters.Add(new PaintConverter());
 
@@ -92,22 +92,31 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
         return typeof(T).IsAssignableFrom(objectType);
     }
 
-    private static HashSet<string> _missingProps = new HashSet<string>();
+#if DEBUG
+    private static readonly HashSet<string> _missingProps = new();
+#endif
 
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         // Load JObject from stream
         JObject jObject = JObject.Load(reader);
 
+        System.Diagnostics.Debug.WriteLine($"type={jObject["type"]?.Value<string>()}");
+
         if (!Enum.TryParse<TEnum>(jObject["type"]?.Value<string>(), out var nodeType))
         {
             throw new InvalidOperationException($"Node type not found: {jObject["type"]?.Value<string>() ?? "null"}");
         }
 
-        var node = jObject.ToObject(GetTypeForEnumValue(nodeType)).EnsureNotNull();
+        //System.Diagnostics.Debug.WriteLine(nodeType);
 
-        serializer.Populate(jObject.CreateReader(), node);
+        var node = Activator.CreateInstance(GetTypeForEnumValue(nodeType)).EnsureNotNull();
 
+        using var jsonReader = jObject.CreateReader();
+        jsonReader.MaxDepth = serializer.MaxDepth;
+        serializer.Populate(jsonReader, node);
+
+#if DEBUG
         //if (node is Node nodeTyped && nodeTyped.Id == "42:2821")
         {
             var nodeTypeProps = node.GetType().GetProperties().Select(_ => _.Name);
@@ -126,7 +135,7 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
                 }
             }
         }
-
+#endif
         //if (node is Node nodeTyped && nodeTyped.AdditionalData?.Count > 0)
         //{
         //    node = node;
