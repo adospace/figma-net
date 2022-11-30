@@ -227,6 +227,7 @@ public enum LayoutGridAlignment
     MIN,
     MAX,
     CENTER,
+    STRETCH,
 }
 
 public enum PaintType
