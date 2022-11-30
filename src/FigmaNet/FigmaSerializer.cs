@@ -1,16 +1,40 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
-namespace FigmaNet.Models;
+namespace FigmaNet;
 
-public class NodeConverter : GenericEnumTypeConverter<NodeTypes, Node>
+public class FigmaSerializer
+{
+    private readonly JsonSerializer _jsonSerializer;
+
+    public FigmaSerializer()
+    {
+        var jsonOptions = new JsonSerializerSettings();
+        jsonOptions.Converters.Add(new NodeConverter());
+        jsonOptions.Converters.Add(new PaintConverter());
+
+        _jsonSerializer = JsonSerializer.Create(jsonOptions); 
+    }
+
+    [return: NotNull]
+    public T Deserialize<T>(string jsonContent)
+    {
+        using var sr = new StringReader(jsonContent);
+        using var jsonTextReader = new JsonTextReader(sr);            
+        return _jsonSerializer.Deserialize<T>(jsonTextReader).EnsureNotNull();
+    }
+
+    [return: NotNull]
+    public T Deserialize<T>(Stream jsonStream)
+    {
+        using var sr = new StreamReader(jsonStream);
+        using var jsonTextReader = new JsonTextReader(sr);
+        return _jsonSerializer.Deserialize<T>(jsonTextReader).EnsureNotNull();
+    }
+}
+
+file class NodeConverter : GenericEnumTypeConverter<NodeTypes, Node>
 {
     private static readonly Dictionary<NodeTypes, Type> _nodeTypeMapper = new()
     {
@@ -32,12 +56,12 @@ public class NodeConverter : GenericEnumTypeConverter<NodeTypes, Node>
         { NodeTypes.COMPONENT_SET, typeof(COMPONENT_SET) },
         { NodeTypes.INSTANCE, typeof(INSTANCE) },
     };
-    
+
     protected override Type GetTypeForEnumValue(NodeTypes value)
         => _nodeTypeMapper[value];
 }
 
-public class PaintConverter : GenericEnumTypeConverter<PaintType, Paint>
+file class PaintConverter : GenericEnumTypeConverter<PaintType, Paint>
 {
     private static readonly Dictionary<PaintType, Type> _nodeTypeMapper = new()
     {
@@ -54,7 +78,7 @@ public class PaintConverter : GenericEnumTypeConverter<PaintType, Paint>
         => _nodeTypeMapper[value];
 }
 
-public abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEnum : struct
+file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEnum : struct
 {
     public GenericEnumTypeConverter()
     {

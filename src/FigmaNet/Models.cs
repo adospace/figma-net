@@ -1,19 +1,14 @@
-﻿using FigmaNet.Models;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using static FigmaNet.Models.BOOLEAN_OPERATION;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace FigmaNet.Models;
+/*
+ * Missing properties
+CANVAS - FlowStartingPoints
+CANVAS - PrototypeDevice
+TEXT - LayoutVersion         
+ */
+
+namespace FigmaNet;
 
 /*A string enum with value, describing the end caps of vector paths. */
 public enum StrokeCap
@@ -414,7 +409,7 @@ public record DOCUMENT : Node
 {
     /*An array of canvases attached to the document */
     [JsonPropertyName("children")]
-    public required Node[] Children { get; set; }    
+    public required Node[] Children { get; set; }
     /*Undocumented SCROLL|...*/
     [JsonPropertyName("scrollBehavior")]
     public required string ScrollBehavior { get; set; }
@@ -524,7 +519,7 @@ public record PaintImage : Paint
     public required double Rotation { get; set; }
     /*A reference to the GIF embedded in this node if the image is a GIF. To download the image using this reference use the GET file images endpoint to retrieve the mapping from image references to image URLs */
     [JsonPropertyName("gifRef")]
-    public required string GifRef { get; set; }    
+    public required string GifRef { get; set; }
     /*How this node blends with nodes behind it in the scene (see blend mode section for more details) */
     [JsonPropertyName("blendMode")]
     public required BlendMode BlendMode { get; set; }
@@ -761,13 +756,13 @@ public record FRAME : Node
     public required double[] RectangleCornerRadii { get; set; }
     /*default: [] An array of export settings representing images to export from node */
     [JsonPropertyName("exportSettings")]
-    public required ExportSetting[] ExportSettings    { get; set; }
+    public required ExportSetting[] ExportSettings { get; set; }
     /*How this node blends with nodes behind it in the scene (see blend mode section for more details) */
     [JsonPropertyName("blendMode")]
     public required BlendMode BlendMode { get; set; }
     /*default: false Keep height and width constrained to same ratio */
     [JsonPropertyName("preserveRatio")]
-    public required bool PreserveRatio    { get; set; }
+    public required bool PreserveRatio { get; set; }
     /*Horizontal and vertical layout constraints for node */
     [JsonPropertyName("constraints")]
     public required LayoutConstraint Constraints { get; set; }
@@ -879,7 +874,7 @@ public record COMPONENT : FRAME { }
 /** A node that can have instances created of it that share the same properties */
 public record COMPONENT_SET : FRAME { }
 
-public record INSTANCE : COMPONENT 
+public record INSTANCE : COMPONENT
 {
     [JsonPropertyName("componentId")]
     public required string ComponentId { get; set; }
@@ -1014,7 +1009,7 @@ public record VECTOR : Node
 
 
 /** A group that has a boolean operation applied to it */
-public record BOOLEAN : VECTOR 
+public record BOOLEAN : VECTOR
 {
     /** An array of nodes that are being boolean operated on */
     [JsonPropertyName("children")]
@@ -1055,7 +1050,7 @@ public record ArcData
 }
 
 /** An ellipse */
-public record ELLIPSE : VECTOR 
+public record ELLIPSE : VECTOR
 {
     /** Start and end angles of the ellipse measured clockwise from the x axis, plus the inner radius for donuts */
     [JsonPropertyName("arcData")]
