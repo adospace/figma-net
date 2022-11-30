@@ -10,7 +10,7 @@ public class FigmaSerializer
 
     public FigmaSerializer()
     {
-        var jsonOptions = new JsonSerializerSettings();
+        var jsonOptions = new JsonSerializerSettings();// { MaxDepth = 128 };
         jsonOptions.Converters.Add(new NodeConverter());
         jsonOptions.Converters.Add(new PaintConverter());
 
@@ -92,7 +92,7 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
         return typeof(T).IsAssignableFrom(objectType);
     }
 
-    private static HashSet<string> _missingProps = new HashSet<string>();
+    private static HashSet<string> _missingProps = new();
 
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
@@ -104,10 +104,13 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
             throw new InvalidOperationException($"Node type not found: {jObject["type"]?.Value<string>() ?? "null"}");
         }
 
-        var node = jObject.ToObject(GetTypeForEnumValue(nodeType)).EnsureNotNull();
+        var node = jObject.ToObject(GetTypeForEnumValue(nodeType), serializer).EnsureNotNull();
 
-        serializer.Populate(jObject.CreateReader(), node);
+        using var jsonReader = jObject.CreateReader();
+        //jsonReader.MaxDepth = int.MaxValue;
+        serializer.Populate(jsonReader, node);
 
+#if DEBUG
         //if (node is Node nodeTyped && nodeTyped.Id == "42:2821")
         {
             var nodeTypeProps = node.GetType().GetProperties().Select(_ => _.Name);
@@ -126,7 +129,7 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
                 }
             }
         }
-
+#endif
         //if (node is Node nodeTyped && nodeTyped.AdditionalData?.Count > 0)
         //{
         //    node = node;

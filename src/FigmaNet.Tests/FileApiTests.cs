@@ -11,7 +11,7 @@ public class FileApiTests
 
         FigmaApi api = new(personalAccessToken: pat);
 
-        GetFileResult res = await api.GetFile("LqSUXxik7wINF08GbFFT4F");
+        GetFileResult res = await api.GetFile("jNO0GzgcEqCKejRPOY2QnR");
         
         res.Name.Should().Be("Trackizer");
     }
