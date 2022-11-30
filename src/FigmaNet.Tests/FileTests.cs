@@ -25,6 +25,18 @@ public class FileTests
     }
 
     [Fact]
+    public async Task Should_Correctly_Parse_Large_Sized_File()
+    {
+        using var srJson = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("FigmaNet.Tests.TestFiles.FixMaxDepthBug.json") ?? throw new InvalidOperationException());
+        var jsonContent = await srJson.ReadToEndAsync();
+
+        FigmaSerializer serializer = new();
+
+        GetFileResult res = serializer.Deserialize<GetFileResult>(jsonContent);
+        res.Name.Should().Be("Social App - Free UI Kit 📱 (Community)");
+    }
+
+    [Fact]
     public async Task Should_Correctly_Deserialize_GetFileNodesResult()
     {
         using var srJson = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("FigmaNet.Tests.TestFiles.GetFileNodeResult.json") ?? throw new InvalidOperationException());

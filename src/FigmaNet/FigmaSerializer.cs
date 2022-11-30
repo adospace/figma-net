@@ -10,7 +10,7 @@ public class FigmaSerializer
 
     public FigmaSerializer()
     {
-        var jsonOptions = new JsonSerializerSettings();// { MaxDepth = 128 };
+        var jsonOptions = new JsonSerializerSettings { MaxDepth = 128 };
         jsonOptions.Converters.Add(new NodeConverter());
         jsonOptions.Converters.Add(new PaintConverter());
 
@@ -92,22 +92,28 @@ file abstract class GenericEnumTypeConverter<TEnum, T> : JsonConverter where TEn
         return typeof(T).IsAssignableFrom(objectType);
     }
 
-    private static HashSet<string> _missingProps = new();
+#if DEBUG
+    private static readonly HashSet<string> _missingProps = new();
+#endif
 
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         // Load JObject from stream
         JObject jObject = JObject.Load(reader);
 
+        System.Diagnostics.Debug.WriteLine($"type={jObject["type"]?.Value<string>()}");
+
         if (!Enum.TryParse<TEnum>(jObject["type"]?.Value<string>(), out var nodeType))
         {
             throw new InvalidOperationException($"Node type not found: {jObject["type"]?.Value<string>() ?? "null"}");
         }
 
-        var node = jObject.ToObject(GetTypeForEnumValue(nodeType), serializer).EnsureNotNull();
+        //System.Diagnostics.Debug.WriteLine(nodeType);
+
+        var node = Activator.CreateInstance(GetTypeForEnumValue(nodeType)).EnsureNotNull();
 
         using var jsonReader = jObject.CreateReader();
-        //jsonReader.MaxDepth = int.MaxValue;
+        jsonReader.MaxDepth = serializer.MaxDepth;
         serializer.Populate(jsonReader, node);
 
 #if DEBUG
