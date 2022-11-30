@@ -404,8 +404,13 @@ public record PageInfo
 {
 }
 
+public interface INodeContainer
+{
+    Node[] Children { get; }
+}
+
 /*The root node */
-public record DOCUMENT : Node
+public record DOCUMENT : Node, INodeContainer
 {
     /*An array of canvases attached to the document */
     [JsonPropertyName("children")]
@@ -682,7 +687,7 @@ public record Style
 }
 
 /*Represents a single page */
-public record CANVAS : Node
+public record CANVAS : Node, INodeContainer
 {
     /*An array of top level layers on the canvas */
     [JsonPropertyName("children")]
@@ -720,7 +725,7 @@ public record StrokeWeights
 }
 
 /*A node of fixed size containing other nodes */
-public record FRAME : Node
+public record FRAME : Node, INodeContainer
 {
     /*An array of nodes that are direct children of this node */
     [JsonPropertyName("children")]
@@ -1009,7 +1014,7 @@ public record VECTOR : Node
 
 
 /** A group that has a boolean operation applied to it */
-public record BOOLEAN : VECTOR
+public record BOOLEAN : VECTOR, INodeContainer
 {
     /** An array of nodes that are being boolean operated on */
     [JsonPropertyName("children")]
@@ -1017,7 +1022,7 @@ public record BOOLEAN : VECTOR
 }
 
 /** A group that has a boolean operation applied to it */
-public record BOOLEAN_OPERATION : VECTOR
+public record BOOLEAN_OPERATION : VECTOR, INodeContainer
 {
     /** An array of nodes that are being boolean operated on */
     [JsonPropertyName("children")]
